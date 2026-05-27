@@ -12,9 +12,11 @@ std::vector<Tour> apply_filters(const std::vector<Tour> &tours,
     std::vector<Tour> result;
     for (const auto &t : tours)
     {
+        int tprice = calculate_total_price(t.price, f.adults, f.children);
+        
         if (!f.country.empty() && t.country != f.country)
             continue;
-        if (t.price < f.min_price || t.price > f.max_price)
+        if (tprice < f.min_price || tprice > f.max_price)
             continue;
         if (t.length < f.min_length || t.length > f.max_length)
             continue;
@@ -39,7 +41,7 @@ std::vector<Tour> apply_filters(const std::vector<Tour> &tours,
         std::sort(result.begin(), result.end(),
                   [](const Tour &a, const Tour &b)
                   { return a.length < b.length; });
-        break;
+        break; 
     case SortBy::LENGTH_DESC:
         std::sort(result.begin(), result.end(),
                   [](const Tour &a, const Tour &b)
@@ -120,6 +122,21 @@ static void set_length(SearchFilters &f)
     }
 }
 
+static void set_people(SearchFilters &f)
+{
+    std::cout << "  Введите количество взрослых (>=1): ";
+    int adults = read_int("");
+    if (adults < 1) adults = 1;
+    f.adults = adults;
+    
+    std::cout << "  Введите количество детей (>=0): ";
+    int children = read_int("");
+    if (children < 0) children = 0;
+    f.children = children;
+    
+    std::cout << "  - Установлено: взрослых " << f.adults << ", детей " << f.children << "\n";
+}
+
 static void set_sort(SearchFilters &f)
 {
     std::cout << "  1) Цена ↑\n  2) Цена ↓\n  3) Длительность ↑\n  4) Длительность ↓\n  0) Без сортировки\n";
@@ -169,13 +186,14 @@ bool filters_menu(SearchFilters &f, const std::vector<Tour> &tours)
         std::cout << "\n── Фильтры поиска ──────────────────────────────\n"
                   << "  1) Страна:          " << country_label << '\n'
                   << "  2) Бюджет (" << currency_symbol(get_current_currency()) << "):      от " << convert_price(f.min_price) << " до " << convert_price(f.max_price)<< '\n'
-                  << "  3) Дата вылета:     " << f.from_date.to_str()
+                  << "  3) Даты вылета:     " << f.from_date.to_str()
                   << " — " << f.to_date.to_str() << '\n'
                   << "  4) Продолжительность(дн.):  от " << f.min_length << " до " << f.max_length << '\n'
-                  << "  5) Сортировка:      " << sort_label(f.sort_by) << '\n'
+                  << "  5) Количество человек: взрослых " << f.adults << ", детей " << f.children << '\n'
+                  << "  6) Сортировка:      " << sort_label(f.sort_by) << '\n'
                   << "────────────────────────────────────────────────\n"
-                  << "  6) Найти туры\n"
-                  << "  7) Сбросить фильтры\n"
+                  << "  7) Найти туры\n"
+                  << "  8) Сбросить фильтры\n"
                   << "  0) Назад в главное меню\n"
                   << "────────────────────────────────────────────────\n> ";
 
@@ -194,9 +212,12 @@ bool filters_menu(SearchFilters &f, const std::vector<Tour> &tours)
             set_length(f);
             break;
         case 5:
-            set_sort(f);
+            set_people(f);
             break;
         case 6:
+            set_sort(f);
+            break;
+        case 7:
         {
             auto res = apply_filters(tours, f);
             if (res.empty())
@@ -204,11 +225,11 @@ bool filters_menu(SearchFilters &f, const std::vector<Tour> &tours)
             else
             {
                 std::cout << "\n  Найдено туров: " << res.size() << '\n';
-                print_tours_table(res);
+                print_tours_table(res, f.adults, f.children);
             }
             break;
         }
-        case 7:
+        case 8:
             f = SearchFilters{};
             std::cout << "  Фильтры сброшены.\n";
             break;

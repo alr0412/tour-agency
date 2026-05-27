@@ -1,4 +1,5 @@
 #include "ui.h"
+#include "filter.h"
 #include <iostream>
 #include <sstream>
 
@@ -172,7 +173,7 @@ static std::string fmt(const std::string &s, int w)
     return s + std::string(w - len, ' ');
 }
 
-void print_tours_table(const std::vector<Tour> &tours)
+void print_tours_table(const std::vector<Tour> &tours, int adults, int children)
 {
     if (tours.empty())
     {
@@ -207,8 +208,11 @@ void print_tours_table(const std::vector<Tour> &tours)
     for (size_t i = 0; i < tours.size(); ++i)
     {
         const auto &t = tours[i];
+        int final_price = calculate_total_price(t.price, adults, children);
+        std::string price_str = std::to_string(convert_price(final_price)) + " " + currency_symbol(get_current_currency());
+
         row(std::to_string(t.id), t.name, t.country,
-            std::to_string(convert_price(t.price)) + " " + currency_symbol(get_current_currency()),
+            price_str,
             t.date.to_str(), std::to_string(t.length));
         if (i + 1 < tours.size())
             sep('-');

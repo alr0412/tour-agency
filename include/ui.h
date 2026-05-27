@@ -15,7 +15,7 @@ Date read_date(const std::string& prompt);
 // Таблица туров
 
 // Печатает таблицу. show_index=true добавляет столбец порядкового номера
-void print_tours_table(const std::vector<Tour>& tours);
+void print_tours_table(const std::vector<Tour>& tours, int adults = 1, int children = 0);
 
 // Валюты
 enum class Currency { RUB, BYN, USD, EUR };

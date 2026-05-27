@@ -126,7 +126,7 @@ static void main_menu(User &user, std::vector<User> &users,
             filters_menu(filters, tours);
             break;
         case 2:
-            print_tours_table(tours);
+            print_tours_table(tours, 1,0);
             break;
         case 3:
             change_currency();

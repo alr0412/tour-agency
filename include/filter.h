@@ -15,8 +15,16 @@ struct SearchFilters {
     Date to_date   = {31, 12, 2099};
     int min_length = 1;
     int max_length = 365;
+    int adults = 1;     
+    int children = 0;    
     SortBy sort_by = SortBy::NONE;
 };
+
+// Подсчет цены с учетом кол-ва людей
+inline int calculate_total_price(int base_price, int adults, int children)
+{
+    return base_price * (adults + children * 0.34);
+}
 
 // Применяет фильтры и сортировку
 std::vector<Tour> apply_filters(const std::vector<Tour>& tours,
