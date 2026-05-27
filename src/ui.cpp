@@ -2,6 +2,71 @@
 #include <iostream>
 #include <sstream>
 
+static Currency current_currency = Currency::RUB;
+
+// Работа с валютами
+std::string currency_symbol(Currency cur)
+{
+    switch (cur)
+    {
+        case Currency::RUB: return "₽";
+        case Currency::BYN: return "BYN";
+        case Currency::USD: return "$";
+        case Currency::EUR: return "€";
+        default: return "₽";
+    }
+}
+
+void change_currency()
+{
+    std::cout << "\n  Выберите валюту:\n"
+              << "  1) Российский рубль (₽)\n"
+              << "  2) Белорусский рубль (BYN)\n"
+              << "  3) Доллар США ($)\n"
+              << "  4) Евро (€)\n"
+              << "  0) Отмена\n> ";
+    int ch = read_int("");
+    switch (ch)
+    {
+        case 1: current_currency = Currency::RUB; break;
+        case 2: current_currency = Currency::BYN; break;
+        case 3: current_currency = Currency::USD; break;
+        case 4: current_currency = Currency::EUR; break;
+        default: std::cout << "  Валюта не изменена.\n"; return;
+    }
+    std::cout << "  Валюта изменена.\n";
+}
+
+Currency get_current_currency()
+{
+    return current_currency;
+}
+
+int convert_price(int price_rub)
+{
+    // Курсы
+    switch (get_current_currency())
+    {
+        case Currency::RUB: return price_rub;
+        case Currency::BYN: return price_rub / 26;     
+        case Currency::USD: return price_rub / 71;   
+        case Currency::EUR: return price_rub / 83;    
+        default: return price_rub;
+    }
+}
+
+int convert_to_rub(int amount, Currency cur)
+{
+    switch (cur)
+    {
+        case Currency::RUB: return amount;
+        case Currency::BYN: return amount * 26;     
+        case Currency::USD: return amount * 71;    
+        case Currency::EUR: return amount * 83;    
+        default: return amount;
+    }
+}
+
 // Ввод
 
 bool is_integer(const std::string &s)
@@ -136,13 +201,15 @@ void print_tours_table(const std::vector<Tour> &tours)
     };
 
     sep('=');
-    row("ID", "НАЗВАНИЕ ТУРА", "СТРАНА", "ЦЕНА (руб)", "ДАТА", "ДНЕЙ");
+    std::string price_header = "ЦЕНА (" + currency_symbol(get_current_currency()) + ")";
+    row("ID", "НАЗВАНИЕ ТУРА", "СТРАНА", price_header, "ДАТА", "ДНЕЙ");
     sep('=');
     for (size_t i = 0; i < tours.size(); ++i)
     {
         const auto &t = tours[i];
         row(std::to_string(t.id), t.name, t.country,
-            std::to_string(t.price), t.date.to_str(), std::to_string(t.length));
+            std::to_string(convert_price(t.price)) + " " + currency_symbol(get_current_currency()),
+            t.date.to_str(), std::to_string(t.length));
         if (i + 1 < tours.size())
             sep('-');
     }

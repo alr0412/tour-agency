@@ -80,13 +80,21 @@ static void set_country(SearchFilters &f, const std::vector<Tour> &tours)
 
 static void set_price(SearchFilters &f)
 {
-    f.min_price = std::max(0, read_int("  Минимальная цена (руб): "));
-    f.max_price = read_int("  Максимальная цена (руб): ");
-    if (f.max_price < f.min_price)
+    Currency cur = get_current_currency();
+    std::string cur_symbol = currency_symbol(cur);
+    
+    int min_local = std::max(0, read_int("  Минимальная цена (" + cur_symbol + "): "));
+    int max_local = read_int("  Максимальная цена (" + cur_symbol + "): ");
+    
+    if (max_local < min_local)
     {
         std::cout << "  [!] Максимум меньше минимума — установлен равным минимуму.\n";
-        f.max_price = f.min_price;
+        max_local = min_local;
     }
+    
+    // Конвертация в рубли для хранения в фильтре
+    f.min_price = convert_to_rub(min_local, cur);
+    f.max_price = convert_to_rub(max_local, cur);
 }
 
 static void set_dates(SearchFilters &f)
@@ -160,7 +168,7 @@ bool filters_menu(SearchFilters &f, const std::vector<Tour> &tours)
         std::string country_label = f.country.empty() ? "любая" : f.country;
         std::cout << "\n── Фильтры поиска ──────────────────────────────\n"
                   << "  1) Страна:          " << country_label << '\n'
-                  << "  2) Цена (руб):      от " << f.min_price << " до " << f.max_price << '\n'
+                  << "  2) Бюджет (" << currency_symbol(get_current_currency()) << "):      от " << convert_price(f.min_price) << " до " << convert_price(f.max_price)<< '\n'
                   << "  3) Дата вылета:     " << f.from_date.to_str()
                   << " — " << f.to_date.to_str() << '\n'
                   << "  4) Продолжительность(дн.):  от " << f.min_length << " до " << f.max_length << '\n'

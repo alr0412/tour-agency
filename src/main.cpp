@@ -100,16 +100,17 @@ static void main_menu(User &user, std::vector<User> &users,
             dashes += "─";
         std::cout << "\n─── Главное меню [" << user.login << "] " << dashes << "\n"
                   << "  1) Поиск тура (с фильтрами)\n"
-                  << "  2) Показать все туры\n";
+                  << "  2) Показать все туры\n"
+                  << "  3) Сменить валюту\n";
         if (is_admin)
         {
             std::cout
                 << "─── Администрирование ──────────────────────────\n"
-                << "  3) Добавить тур\n"
-                << "  4) Редактировать тур\n"
-                << "  5) Удалить тур\n"
-                << "  6) Список пользователей\n"
-                << "  7) Изменить роль пользователя\n";
+                << "  4) Добавить тур\n"
+                << "  5) Редактировать тур\n"
+                << "  6) Удалить тур\n"
+                << "  7) Список пользователей\n"
+                << "  8) Изменить роль пользователя\n";
         }
         std::cout << "────────────────────────────────────────────────\n"
                   << "  0) Выйти из аккаунта\n"
@@ -127,31 +128,34 @@ static void main_menu(User &user, std::vector<User> &users,
         case 2:
             print_tours_table(tours);
             break;
-        case 3: 
+        case 3:
+            change_currency();
+            break;
+        case 4: 
             if (is_admin)
                 admin_add_tour(g_db, tours);
             else
                 std::cout << "  [!] Нет доступа.\n";
             break;
-        case 4:
+        case 5:
             if (is_admin)
                 admin_edit_tour(g_db, tours);
             else
                 std::cout << "  [!] Нет доступа.\n";
             break;
-        case 5:
+        case 6:
             if (is_admin)
                 admin_delete_tour(g_db, tours);
             else
                 std::cout << "  [!] Нет доступа.\n";
             break;
-        case 6:
+        case 7:
             if (is_admin)
                 admin_list_users(users);
             else
                 std::cout << "  [!] Нет доступа.\n";
             break;
-        case 7:
+        case 8:
             if (is_admin)
                 admin_change_role(g_db, users);
             else

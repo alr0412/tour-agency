@@ -11,7 +11,12 @@ void admin_add_tour(sqlite3* db, std::vector<Tour> &tours)
     t.id = next_id(tours);
     t.name = read_string("  Название тура: ");
     t.country = read_string("  Страна: ");
-    t.price = std::max(0, read_int("  Цена (руб): "));
+
+    Currency cur = get_current_currency();
+    std::string cur_symbol = currency_symbol(cur);
+    int price_local = std::max(0, read_int("  Цена (" + cur_symbol + "): "));
+    t.price = convert_to_rub(price_local, cur);
+
     t.date = read_date("  Дата вылета");
     t.length = std::max(1, read_int("  Продолжительность (дней): "));
 
@@ -39,7 +44,14 @@ void admin_edit_tour(sqlite3* db, std::vector<Tour> &tours)
     {
     case 1: it->name = read_string("  Новое название: "); break;
     case 2: it->country = read_string("  Новая страна: "); break;
-    case 3: it->price = std::max(0, read_int("  Новая цена: ")); break;
+    case 3: 
+    {
+        Currency cur = get_current_currency();
+        std::string cur_symbol = currency_symbol(cur);
+        int price_local = std::max(0, read_int("  Новая цена (" + cur_symbol + "): "));
+        it->price = convert_to_rub(price_local, cur);
+        break;
+    }
     case 4: it->date = read_date("  Новая дата"); break;
     case 5: it->length = std::max(1, read_int("  Новая продолжительность: ")); break;
     default: std::cout << "  Отменено.\n"; return;
