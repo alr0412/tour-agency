@@ -17,3 +17,5 @@ add_executable(tourism_system
     src/ui.cpp
     src/user.cpp
 )
+
+target_link_libraries(tourism_system PRIVATE hpdf)

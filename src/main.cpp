@@ -4,6 +4,7 @@
 #include "filter.h"
 #include "admin.h"
 #include "database.h"
+#include <hpdf.h>
 
 #include <iostream>
 #include <string>
@@ -180,6 +181,7 @@ int main()
     std::cout << "╔═════════════════════════════════════════════╗\n"
               << "║    СИСТЕМА ПОДБОРА ТУРИСТИЧЕСКИХ ПУТЁВОК    ║\n"
               << "╚═════════════════════════════════════════════╝\n";
+              
 
     g_db = open_database("tourism.db");
     if (!g_db) return 1;

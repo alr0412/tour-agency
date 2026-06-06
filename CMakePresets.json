@@ -1,0 +1,17 @@
+{
+  "version": 3,
+  "configurePresets": [
+    {
+      "name": "default",
+      "displayName": "MinGW (libharu via MSYS2)",
+      "generator": "MinGW Makefiles",
+      "binaryDir": "${sourceDir}/build",
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "Debug",
+        "CMAKE_C_COMPILER": "D:/Programms/msys/ucrt64/bin/gcc.exe",
+        "CMAKE_CXX_COMPILER": "D:/Programms/msys/ucrt64/bin/g++.exe",
+        "CMAKE_MAKE_PROGRAM": "D:/Programms/msys/ucrt64/bin/mingw32-make.exe"
+      }
+    }
+  ]
+}
