@@ -35,7 +35,7 @@ Date Date::from_str(const std::string &s)
 std::vector<Tour> load_tours(sqlite3* db)
 {
     std::vector<Tour> tours;
-    const char* sql = "SELECT id, name, country, price, date, length FROM tours;";
+    const char* sql = "SELECT id, name, country, price, date, length, photo FROM tours;";
     sqlite3_stmt* stmt;
     
     if (sqlite3_prepare_v2(db, sql, -1, &stmt, nullptr) == SQLITE_OK)
@@ -51,6 +51,16 @@ std::vector<Tour> load_tours(sqlite3* db)
                 (const char*)(sqlite3_column_text(stmt, 4))
             );
             t.length  = sqlite3_column_int(stmt, 5);
+
+            int photo_size = sqlite3_column_bytes(stmt, 6);
+            if (photo_size > 0) {
+                const void* photo_blob = sqlite3_column_blob(stmt, 6);
+                if (photo_blob) {
+                    const unsigned char* bytes = static_cast<const unsigned char*>(photo_blob);
+                    t.photo.assign(bytes, bytes + photo_size);
+                }
+            }
+
             tours.push_back(t);
         }
         sqlite3_finalize(stmt);
@@ -60,7 +70,7 @@ std::vector<Tour> load_tours(sqlite3* db)
 
 void save_tour(sqlite3* db, const Tour& tour)
 {
-    const char* sql = "INSERT INTO tours (name, country, price, date, length) VALUES (?, ?, ?, ?, ?);";
+    const char* sql = "INSERT INTO tours (name, country, price, date, length, photo) VALUES (?, ?, ?, ?, ?, ?);";
     sqlite3_stmt* stmt;
     
     if (sqlite3_prepare_v2(db, sql, -1, &stmt, nullptr) == SQLITE_OK)
@@ -71,6 +81,7 @@ void save_tour(sqlite3* db, const Tour& tour)
         std::string date_str = tour.date.to_str();  // просто to_str()
         sqlite3_bind_text(stmt, 4, date_str.c_str(), -1, SQLITE_TRANSIENT);
         sqlite3_bind_int(stmt, 5, tour.length);
+        sqlite3_bind_blob(stmt, 6, tour.photo.data(), tour.photo.size(), SQLITE_TRANSIENT);
         
         sqlite3_step(stmt);
         sqlite3_finalize(stmt);
@@ -79,7 +90,7 @@ void save_tour(sqlite3* db, const Tour& tour)
 
 void update_tour(sqlite3* db, const Tour& tour)
 {
-    const char* sql = "UPDATE tours SET name=?, country=?, price=?, date=?, length=? WHERE id=?;";
+    const char* sql = "UPDATE tours SET name=?, country=?, price=?, date=?, length=?, photo=? WHERE id=?;";
     sqlite3_stmt* stmt;
     
     if (sqlite3_prepare_v2(db, sql, -1, &stmt, nullptr) == SQLITE_OK)
@@ -90,7 +101,8 @@ void update_tour(sqlite3* db, const Tour& tour)
         std::string date_str = tour.date.to_str();  // просто to_str()
         sqlite3_bind_text(stmt, 4, date_str.c_str(), -1, SQLITE_TRANSIENT);
         sqlite3_bind_int(stmt, 5, tour.length);
-        sqlite3_bind_int(stmt, 6, tour.id);
+        sqlite3_bind_blob(stmt, 6, tour.photo.data(), tour.photo.size(), SQLITE_TRANSIENT);
+        sqlite3_bind_int(stmt, 7, tour.id);
         
         sqlite3_step(stmt);
         sqlite3_finalize(stmt);

@@ -34,7 +34,8 @@ struct Tour {
     std::string country;
     int price = 0;
     Date date;
-    int length = 0;   // дней
+    int length = 0;
+     std::vector<unsigned char> photo;
 };
 
 // ───────────────── I/O ─────────────────

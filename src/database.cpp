@@ -1,5 +1,7 @@
 #include <database.h>
 #include <iostream>
+#include <vector>
+#include <fstream>
 
 sqlite3* open_database(const std::string& path){
     sqlite3* db;
@@ -25,7 +27,8 @@ sqlite3* open_database(const std::string& path){
             country TEXT NOT NULL,
             price INTEGER NOT NULL,
             date TEXT NOT NULL,
-            length INTEGER NOT NULL
+            length INTEGER NOT NULL,
+            photo BLOB
         );
         
         INSERT OR IGNORE INTO users (login, pass_hash, role) 
@@ -46,4 +49,15 @@ sqlite3* open_database(const std::string& path){
 void close_database(sqlite3* db)
 {
     if (db) sqlite3_close(db);
+}
+
+std::vector<unsigned char> read_image_file(const std::string& filepath) {
+    std::ifstream file(filepath, std::ios::binary | std::ios::ate);
+    if (!file.is_open()) return {};
+    std::streamsize size = file.tellg();
+    file.seekg(0, std::ios::beg);
+    std::vector<unsigned char> buffer(size);
+    if (file.read(reinterpret_cast<char*>(buffer.data()), size))
+        return buffer;
+    return {};
 }

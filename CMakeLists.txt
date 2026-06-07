@@ -16,6 +16,8 @@ add_executable(tourism_system
     src/tour.cpp
     src/ui.cpp
     src/user.cpp
+    src/pdf_generator.cpp
+    include/pdf_generator.h
 )
 
 target_link_libraries(tourism_system PRIVATE hpdf)

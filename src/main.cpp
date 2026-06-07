@@ -4,7 +4,6 @@
 #include "filter.h"
 #include "admin.h"
 #include "database.h"
-#include <hpdf.h>
 
 #include <iostream>
 #include <string>

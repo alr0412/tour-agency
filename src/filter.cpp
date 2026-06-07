@@ -3,6 +3,7 @@
 #include <iostream>
 #include <algorithm>
 #include <vector>
+#include "pdf_generator.h"
 
 // Применение фильтров
 
@@ -226,6 +227,22 @@ bool filters_menu(SearchFilters &f, const std::vector<Tour> &tours)
             {
                 std::cout << "\n  Найдено туров: " << res.size() << '\n';
                 print_tours_table(res, f.adults, f.children);
+                    std::cout << "\n  Введите ID выбранного тура (0 чтобы пропустить): ";
+                    int tid = read_int("");
+                    if (tid != 0) {
+                        auto it = std::find_if(res.begin(), res.end(),
+                                            [tid](const Tour& t) { return t.id == tid; });
+                        if (it != res.end()) {
+                            std::string pdf_name = "tour_" + std::to_string(tid) + ".pdf";
+                            if (generate_tour_pdf(*it, pdf_name)) {
+                                std::cout << "  PDF сохранен как " << pdf_name << std::endl;
+                            } else {
+                                std::cout << "  [!] Ошибка при генерации PDF.\n";
+                            }
+                        } else {
+                            std::cout << "  [!] ID не найдено в показанных турах.\n";
+                        }
+                }
             }
             break;
         }

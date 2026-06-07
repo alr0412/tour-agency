@@ -2,7 +2,7 @@
 #include "ui.h"
 #include <iostream>
 #include <algorithm>
-
+#include "database.h"
 // Работа с турами
 
 void admin_add_tour(sqlite3* db, std::vector<Tour> &tours)
@@ -20,6 +20,16 @@ void admin_add_tour(sqlite3* db, std::vector<Tour> &tours)
     t.date = read_date("  Дата вылета");
     t.length = std::max(1, read_int("  Продолжительность (дней): "));
 
+    std::string photo_path;
+    std::cout << "  Путь к фото (Enter чтобы пропустить): ";
+    std::cin >> std::ws;
+    std::getline(std::cin, photo_path);
+    if (!photo_path.empty()) {
+        t.photo = read_image_file(photo_path);
+        if (t.photo.empty())
+            std::cout << "  [!] Не удалось прочитать файл.\n";
+    }
+    
     tours.push_back(t);
     save_tour(db, t);
     std::cout << "  - Тур добавлен с ID = " << t.id << ".\n";
@@ -39,7 +49,8 @@ void admin_edit_tour(sqlite3* db, std::vector<Tour> &tours)
 
     std::cout << "  Что изменить?\n"
               << "  1) Название\n  2) Страна\n  3) Цена\n"
-              << "  4) Дата вылета\n  5) Продолжительность\n  0) Отмена\n> ";
+              << "  4) Дата вылета\n  5) Продолжительность\n"
+              << "  6) Фото\n  0) Отмена\n> ";
     switch (read_int(""))
     {
     case 1: it->name = read_string("  Новое название: "); break;
@@ -54,6 +65,25 @@ void admin_edit_tour(sqlite3* db, std::vector<Tour> &tours)
     }
     case 4: it->date = read_date("  Новая дата"); break;
     case 5: it->length = std::max(1, read_int("  Новая продолжительность: ")); break;
+    case 6: {
+        std::string photo_path;
+        std::cout << "  Путь к новому фото (Enter чтобы удалить текущее): ";
+        std::cin >> std::ws;
+        std::getline(std::cin, photo_path);
+        if (photo_path.empty()) {
+            it->photo.clear();
+            std::cout << "  - Фото удалено.\n";
+        } else {
+            std::vector<unsigned char> new_photo = read_image_file(photo_path);
+            if (!new_photo.empty()) {
+                it->photo = std::move(new_photo);
+                std::cout << "  - Фото заменено.\n";
+            } else {
+                std::cout << "  [!] Не удалось прочитать файл, фото не изменено.\n";
+            }
+        }
+        break;
+    }
     default: std::cout << "  Отменено.\n"; return;
     }
     update_tour(db, *it);
